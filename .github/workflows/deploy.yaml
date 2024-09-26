@@ -38,13 +38,17 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew clean build -x test
 
+      - name: Check if deploy.sh exists
+        run: ls -l scripts/deploy.sh || echo "deploy.sh does not exist in scripts folder"
+
       - name: Add execute permission to deploy.sh
-        run: chmod +x ./deploy.sh
+        run: chmod +x ./scripts/deploy.sh
+        continue-on-error: true
 
       - name: Make zip file
         run: |
           zip -r ./$GITHUB_SHA.zip . -x "*.git*"
-          zip -u ./$GITHUB_SHA.zip ./deploy.sh  # deploy.sh를 명시적으로 추가
+          zip -u ./$GITHUB_SHA.zip ./scripts/deploy.sh
           echo "Zip file contents:"
           unzip -l ./$GITHUB_SHA.zip
         shell: bash
