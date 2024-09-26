@@ -38,9 +38,13 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew clean build -x test
 
+      - name: Add execute permission to deploy.sh
+        run: chmod +x ./deploy.sh
+
       - name: Make zip file
         run: |
           zip -r ./$GITHUB_SHA.zip . -x "*.git*"
+          zip -u ./$GITHUB_SHA.zip ./deploy.sh  # deploy.sh를 명시적으로 추가
           echo "Zip file contents:"
           unzip -l ./$GITHUB_SHA.zip
         shell: bash
