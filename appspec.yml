@@ -10,6 +10,3 @@ hooks:
     - location: scripts/deploy.sh
       timeout: 600
       runas: ec2-user
-environment:
-  variables:
-    PATH: /usr/local/bin:/usr/bin:/bin
