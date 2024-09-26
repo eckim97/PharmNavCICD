@@ -51,19 +51,25 @@ done
 
 # Gradle 관련 디렉토리 및 파일에 대한 권한 설정
 log "Setting permissions for Gradle files"
-execute_with_timeout "chown -R ec2-user:ec2-user ." || log "Failed to set ownership, continuing anyway"
-execute_with_timeout "chmod -R 755 ." || log "Failed to set directory permissions, continuing anyway"
-execute_with_timeout "find . -type f -exec chmod 644 {} \;" || log "Failed to set file permissions, continuing anyway"
-execute_with_timeout "chmod +x ./gradlew" || log "Failed to set gradlew permissions, continuing anyway"
-log "Permissions set (or attempted to set)"
+sudo chown -R ec2-user:ec2-user .
+sudo chmod -R 755 .
+sudo find . -type d -exec chmod 755 {} \;
+sudo find . -type f -exec chmod 644 {} \;
+sudo chmod +x ./gradlew
+log "Permissions set"
 
 # Gradle 환경 설정
 export GRADLE_USER_HOME=/home/ec2-user/.gradle
 log "Gradle environment set"
 
+# Gradle 캐시 디렉토리 생성 및 권한 설정
+sudo mkdir -p $GRADLE_USER_HOME
+sudo chown -R ec2-user:ec2-user $GRADLE_USER_HOME
+log "Gradle cache directory created and permissions set"
+
 # Gradle 빌드 실행 (테스트 제외)
 log "Starting Gradle build"
-if execute_with_timeout "./gradlew build -x test --no-daemon --parallel"; then
+if ./gradlew build -x test --no-daemon --parallel; then
     log "Gradle build completed"
 else
     log "Gradle build failed"
@@ -72,7 +78,7 @@ fi
 
 # 기존 컨테이너 중지 및 제거
 log "Stopping and removing existing containers"
-if execute_with_timeout "docker-compose down"; then
+if sudo docker-compose down; then
     log "Existing containers stopped and removed"
 else
     log "Failed to stop and remove existing containers, continuing anyway"
@@ -80,7 +86,7 @@ fi
 
 # Docker Compose로 애플리케이션 시작
 log "Starting application with Docker Compose"
-if execute_with_timeout "docker-compose up --build -d"; then
+if sudo docker-compose up --build -d; then
     log "Application started"
 else
     log "Failed to start application"
