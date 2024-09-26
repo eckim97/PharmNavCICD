@@ -14,6 +14,14 @@ log "Deployment started"
 cd /home/ec2-user/Pharmacy-Recommendation
 log "Changed to project directory"
 
+# .env 파일 로드
+if [ -f .env ]; then
+    export $(cat .env | xargs)
+    log "Loaded environment variables from .env file"
+else
+    log "Warning: .env file not found"
+fi
+
 # Gradle 관련 디렉토리 및 파일에 대한 권한 설정
 log "Setting permissions for Gradle files"
 sudo chown -R ec2-user:ec2-user .
@@ -22,9 +30,12 @@ sudo find . -type d -exec chmod 755 {} \;
 sudo find . -type f -exec chmod 644 {} \;
 sudo chmod +x ./gradlew
 
+# Gradle 환경 설정
+export GRADLE_USER_HOME=/home/ec2-user/.gradle
+
 # Gradle 빌드 실행 (테스트 제외)
 log "Starting Gradle build"
-./gradlew clean build -x test
+./gradlew build -x test --parallel --daemon
 log "Gradle build completed"
 
 # Docker Compose로 애플리케이션 시작
