@@ -7,6 +7,6 @@ files:
 file_exists_behavior: OVERWRITE
 hooks:
   ApplicationStart:
-    - location: /home/ec2-user/Pharmacy-Recommendation/deploy.sh
+    - location: scripts/deploy.sh
       timeout: 60
       runas: ec2-user
