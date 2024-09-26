@@ -1,21 +1,24 @@
 #!/bin/bash
 
-# 프로젝트 설정
-PROJECT_NAME="Pharmacy-Recommendation"
-REPOSITORY="/home/ec2-user/$PROJECT_NAME"
-DEPLOY_LOG_PATH="$REPOSITORY/deploy.log"
+# 프로젝트 디렉토리로 이동
+cd /home/ec2-user/Pharmacy-Recommendation
 
-# 로그 시작
-echo "===== 배포 시작 : $(date +%c) =====" >> $DEPLOY_LOG_PATH
+# 이전 배포 정리
+/usr/local/bin/docker-compose down
 
-# 새 애플리케이션 배포
-echo "> 새 애플리케이션 배포" >> $DEPLOY_LOG_PATH
+# gradlew 파일의 소유자를 ec2-user로 변경
+sudo chown ec2-user:ec2-user gradlew
 
-# Docker Compose 실행
-echo "> Docker Compose 빌드 및 실행" >> $DEPLOY_LOG_PATH
-cd $REPOSITORY
-docker-compose down
-docker-compose up --build -d
+# gradlew에 실행 권한 부여
+chmod +x gradlew
 
-# 배포 완료 로그
-echo "> 새 애플리케이션 배포 완료 : $(date +%c)" >> $DEPLOY_LOG_PATH
+# Gradle 캐시 디렉토리의 소유자를 ec2-user로 변경
+sudo chown -R ec2-user:ec2-user .gradle
+
+# Gradle 빌드 실행
+./gradlew clean build -x test
+
+# 애플리케이션 시작
+/usr/local/bin/docker-compose up --build -d
+
+echo "Deployment completed successfully"
