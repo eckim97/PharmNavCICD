@@ -3,6 +3,7 @@ os: linux
 files:
   - source: /
     destination: /home/ec2-user/Pharmacy-Recommendation
+    overwrite: yes
 hooks:
   ApplicationStart:
     - location: deploy.sh
